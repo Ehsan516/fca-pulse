@@ -1,0 +1,40 @@
+#controlled vocabularies for classification
+
+document_types:
+  - "Policy Statement"
+  - "Consultation Paper"
+  - "Dear CEO Letter"
+  - "Speech"
+  - "Enforcement Notice"
+  - "Handbook Notice"
+  - "Press Release"
+  - "Guidance"
+  - "Other"
+
+regulation_areas:
+  - "AML/Financial Crime"
+  - "Consumer Duty"
+  - "Prudential/Capital"
+  - "Market Conduct"
+  - "Operational Resilience"
+  - "ESG/Disclosure"
+  - "Payments"
+  - "Crypto"
+  - "Other"
+
+affected_firm_types:
+  - "Banks"
+  - "Building Societies"
+  - "Investment Firms"
+  - "Insurers"
+  - "Payment Institutions"
+  - "E-Money Institutions"
+  - "Crypto Firms"
+  - "Consumer Credit Firms"
+  - "Asset Managers"
+  - "General/All Firms"
+
+impact_levels:
+  - "informational"
+  - "action-recommended"
+  - "action-required"

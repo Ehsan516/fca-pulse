@@ -1,0 +1,15 @@
+#RSS feed sources polled by the ingestion pipeline
+feeds:
+  - name: "FCA News"
+    source: FCA
+    url: "https://www.fca.org.uk/news/rss.xml"
+
+  - name: "PRA Prudential Regulation Publications"
+    source: PRA
+    url: "https://www.bankofengland.co.uk/rss/prudential-regulation-publications"
+
+#HTTP settings applied when fetching feeds and articles
+http:
+  user_agent: "FCAPulseBot/1.0 (+https://github.com/Ehsan516/fca-pulse; regulatory horizon-scanning bot)"
+  timeout_seconds: 20
+  per_domain_delay_seconds: 2
