@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}FCA Pulse{% endblock %}</title>
+<link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">FCA Pulse</a>
+    <nav>
+      <a href="index.html">Digest</a>
+      <a href="deadlines.html">Upcoming Deadlines</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <p>
+    Last updated: {{ last_updated }} &middot;
+    Summaries are AI-generated and are not regulatory advice &mdash; always refer to the linked source. &middot;
+    <a href="https://github.com/Ehsan516/fca-pulse">Source</a>
+  </p>
+</footer>
+<script src="static/js/app.js"></script>
+</body>
+</html>
