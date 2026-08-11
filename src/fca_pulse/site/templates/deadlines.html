@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}FCA Pulse &mdash; Upcoming Deadlines{% endblock %}
+{% block content %}
+<h1>Upcoming Deadlines</h1>
+<p class="subtitle">All extracted deadlines in the next {{ window_days }} days, soonest first.</p>
+{% if deadlines %}
+<table class="deadlines-table">
+  <thead>
+    <tr><th>Date</th><th>Description</th><th>Publication</th><th>Source</th></tr>
+  </thead>
+  <tbody>
+    {% for d in deadlines %}
+    <tr>
+      <td class="deadline-date">{{ d.date }}</td>
+      <td>{{ d.description }}</td>
+      <td><a href="{{ d.item_url }}" target="_blank" rel="noopener">{{ d.item_title }}</a></td>
+      <td><span class="badge badge--source badge--{{ d.source | lower }}">{{ d.source }}</span></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-state">No upcoming deadlines in the next {{ window_days }} days.</p>
+{% endif %}
+{% endblock %}

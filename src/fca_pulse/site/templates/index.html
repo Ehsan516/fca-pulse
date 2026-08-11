@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_card.html" import item_card %}
+{% block title %}FCA Pulse &mdash; Regulatory Digest{% endblock %}
+{% block content %}
+<section class="filters" id="filters">
+  <input type="search" id="search-input" placeholder="Search titles and summaries...">
+  <select id="filter-source">
+    <option value="">All sources</option>
+    <option value="FCA">FCA</option>
+    <option value="PRA">PRA</option>
+  </select>
+  <select id="filter-area">
+    <option value="">All regulation areas</option>
+    {% for area in vocab.regulation_areas %}<option value="{{ area }}">{{ area }}</option>{% endfor %}
+  </select>
+  <select id="filter-doctype">
+    <option value="">All document types</option>
+    {% for dt in vocab.document_types %}<option value="{{ dt }}">{{ dt }}</option>{% endfor %}
+  </select>
+  <select id="filter-impact">
+    <option value="">All impact levels</option>
+    {% for lvl in vocab.impact_levels %}<option value="{{ lvl }}">{{ lvl | replace('-', ' ') }}</option>{% endfor %}
+  </select>
+  <span id="result-count"></span>
+</section>
+<section id="items" class="cards">
+  {% for item in items %}{{ item_card(item) }}{% endfor %}
+</section>
+<p class="empty-state" id="empty-state" hidden>No items match your filters.</p>
+{% if not items %}
+<p class="empty-state">No items archived yet &mdash; check back after the next scheduled run.</p>
+{% endif %}
+{% endblock %}

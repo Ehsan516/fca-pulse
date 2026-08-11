@@ -5,3 +5,6 @@ venv/
 .env
 .pytest_cache/
 *.egg-info/
+
+# Personal reference notes, not project documentation.
+PROJECT_CONTEXT_FCAPulse.md

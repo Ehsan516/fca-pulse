@@ -1,0 +1,155 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #666666;
+  --card-bg: #f7f7f8;
+  --border: #e2e2e5;
+  --accent: #1d4ed8;
+  --impact-informational: #9ca3af;
+  --impact-recommended: #d97706;
+  --impact-required: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --fg: #e8e8ea;
+    --muted: #9aa0a6;
+    --card-bg: #181b21;
+    --border: #2a2e37;
+    --accent: #60a5fa;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+
+.site-header { border-bottom: 1px solid var(--border); }
+.site-header__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.brand { font-weight: 700; font-size: 1.25rem; color: var(--fg); text-decoration: none; }
+.site-header nav a { margin-left: 1.25rem; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+.site-header nav a:hover { color: var(--accent); }
+
+.container { max-width: 960px; margin: 0 auto; padding: 1.25rem; }
+
+h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+.subtitle { color: var(--muted); margin-top: 0; }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+.filters input, .filters select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.9rem;
+}
+#search-input { flex: 1 1 220px; }
+#result-count { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+
+.cards { display: grid; gap: 0.85rem; }
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  background: var(--card-bg);
+}
+.card__meta { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--fg);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.badge--source.badge--fca { background: #dbeafe; color: #1e3a8a; }
+.badge--source.badge--pra { background: #ede9fe; color: #4c1d95; }
+.badge--impact-informational { background: var(--impact-informational); color: #fff; }
+.badge--impact-action-recommended { background: var(--impact-recommended); color: #fff; }
+.badge--impact-action-required { background: var(--impact-required); color: #fff; }
+
+.card__title { font-size: 1.05rem; margin: 0.2rem 0 0.4rem; }
+.card__title a { color: var(--fg); text-decoration: none; }
+.card__title a:hover { color: var(--accent); }
+
+.card__summary { margin: 0.3rem 0; }
+.card__summary--failed { color: var(--muted); font-style: italic; }
+.ai-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.4rem 0; }
+.tag {
+  font-size: 0.72rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.card__source-link { color: var(--accent); text-decoration: none; }
+
+.empty-state { text-align: center; color: var(--muted); padding: 2rem 0; }
+
+.deadlines-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.deadlines-table th, .deadlines-table td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.deadline-date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.site-footer {
+  max-width: 960px;
+  margin: 2rem auto 1.5rem;
+  padding: 0 1.25rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (max-width: 480px) {
+  #result-count { margin-left: 0; width: 100%; }
+}
