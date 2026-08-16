@@ -1,14 +1,13 @@
-"""ingest -> classify -> store -> build site .
-
-Each stage implemented in its own module and can be exercised independently in tests
-"""
 import argparse
 import logging
 import os
 import sqlite3
 import sys
 from datetime import datetime, timezone
+
 import anthropic
+from dotenv import load_dotenv
+
 from fca_pulse.classify.client import classify_item
 from fca_pulse.config import load_feeds
 from fca_pulse.ingest.dedupe import make_item_id
@@ -18,12 +17,15 @@ from fca_pulse.site.generate import build_site
 from fca_pulse.storage.db import connect
 from fca_pulse.storage.repository import insert_item, item_exists
 
+load_dotenv()  # loads ANTHROPIC_API_KEY from .env if it's there
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_DB_PATH = "data/archive.db"
 DEFAULT_SITE_DIR = "docs"
 
-_SKIPPED_CLASSIFICATION = {
+# used when we don't have an api key / user passed --skip-classification
+SKIPPED_CLASSIFICATION = {
     "document_type": None,
     "regulation_areas": [],
     "affected_firm_types": [],
@@ -35,15 +37,10 @@ _SKIPPED_CLASSIFICATION = {
 }
 
 
-def run_ingest_and_classify(conn: sqlite3.Connection, anthropic_client: anthropic.Anthropic | None) -> int:
-    """poll feeds, fetch full text, classify, and store new items.
-
-    returns the count of new items stored. items already present in the archive are skipped, so reruns never duplicate
-    entries"""
+def run_ingest_and_classify(conn, anthropic_client):
+    # returns number of new items added this run
     feeds_config = load_feeds()
-    http_client = build_client(
-        feeds_config["http"]["user_agent"], feeds_config["http"]["timeout_seconds"]
-    )
+    http_client = build_client(feeds_config["http"]["user_agent"], feeds_config["http"]["timeout_seconds"])
     robots = RobotsCache(http_client, feeds_config["http"]["user_agent"])
     rate_limiter = RateLimiter(feeds_config["http"]["per_domain_delay_seconds"])
 
@@ -71,37 +68,29 @@ def run_ingest_and_classify(conn: sqlite3.Connection, anthropic_client: anthropi
             "raw_text": raw_text,
         }
 
-        classification = (
-            classify_item(anthropic_client, item)
-            if anthropic_client is not None
-            else dict(_SKIPPED_CLASSIFICATION)
-        )
+        if anthropic_client is not None:
+            classification = classify_item(anthropic_client, item)
+        else:
+            classification = dict(SKIPPED_CLASSIFICATION)
         item.update(classification)
 
         insert_item(conn, item)
-        new_count += 1
+        new_count = new_count + 1
         logger.info("Stored new item: %s (%s)", entry["title"], entry["source"])
 
     return new_count
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="FCA Pulse: ingest FCA/PRA feeds, classify with ai, store, and build the digest site."
-    )
-    parser.add_argument("--db", default=DEFAULT_DB_PATH, help="Path to the SQLite archive")
-    parser.add_argument("--site-dir", default=DEFAULT_SITE_DIR, help="Output directory for the generated site")
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="ingest FCA/PRA feeds, classify with claude, store, build site")
+    parser.add_argument("--db", default=DEFAULT_DB_PATH)
+    parser.add_argument("--site-dir", default=DEFAULT_SITE_DIR)
     parser.add_argument(
         "--skip-classification",
         action="store_true",
-        help="Skip ai classification (items are stored with classification_failed=True). "
-        "Useful for smoke-testing ingestion and site generation without an API key.",
+        help="skip classification, items get stored with classification_failed=True",
     )
-    parser.add_argument(
-        "--site-only",
-        action="store_true",
-        help="Only (re)generate the site from the existing archive; skip ingestion entirely.",
-    )
+    parser.add_argument("--site-only", action="store_true", help="just rebuild the site, don't ingest anything")
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -110,11 +99,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if not args.site_only:
             api_key = os.environ.get("ANTHROPIC_API_KEY")
+            anthropic_client = None
             if args.skip_classification:
-                anthropic_client = None
+                pass
             elif not api_key:
                 logger.warning("ANTHROPIC_API_KEY not set; classification will be skipped for this run.")
-                anthropic_client = None
             else:
                 anthropic_client = anthropic.Anthropic(api_key=api_key)
 

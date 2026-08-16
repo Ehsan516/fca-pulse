@@ -1,7 +1,3 @@
-"""Loaders for the config files (feeds, vocab, prompts).
-
-Controlled vocab can be extended and prompts can be revised without touching python"""
-
 from pathlib import Path
 
 import yaml
@@ -21,5 +17,6 @@ def load_vocab() -> dict:
         return yaml.safe_load(f)
 
 
-def load_prompt_template(name: str) -> str:
-    return (CONFIG_DIR / "prompts" / name).read_text(encoding="utf-8")
+def load_prompt_template(name):
+    path = CONFIG_DIR / "prompts" / name
+    return path.read_text(encoding="utf-8")

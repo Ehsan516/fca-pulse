@@ -28,7 +28,7 @@ def test_item_exists_false_before_insert_true_after(tmp_path):
     assert item_exists(conn, "a") is True
 
 def test_reinserting_same_id_is_a_no_op(tmp_path):
-    """Idempotency (NFR2.1): a rerun that sees the same item never duplicates it."""
+    # rerunning the pipeline on the same item should not create a dupe row
     conn = connect(tmp_path / "test.db")
     insert_item(conn, _item("a", title="Original title"))
     insert_item(conn, _item("a", title="A different title"))

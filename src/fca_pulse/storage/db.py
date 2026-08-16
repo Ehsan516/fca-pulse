@@ -1,5 +1,3 @@
-"""SQLite connection, schema management for the item archive"""
-
 import sqlite3
 from pathlib import Path
 
@@ -24,8 +22,7 @@ CREATE TABLE IF NOT EXISTS items (
 """
 
 
-def connect(db_path: str | Path) -> sqlite3.Connection:
-    """Open (creating if needed) the archive database and ensure its schema exists."""
+def connect(db_path):
     path = Path(db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
