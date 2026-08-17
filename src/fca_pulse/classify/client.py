@@ -1,5 +1,3 @@
-"""ai-powered classification client"""
-
 import logging
 
 import anthropic
@@ -19,7 +17,6 @@ TOOL_SCHEMA = {
     "input_schema": {
         "type": "object",
         "properties": {
-
             "document_type": {"type": "string"},
             "regulation_areas": {"type": "array", "items": {"type": "string"}},
             "affected_firm_types": {"type": "array", "items": {"type": "string"}},
@@ -29,7 +26,6 @@ TOOL_SCHEMA = {
                 "items": {
                     "type": "object",
                     "properties": {
-
                         "date": {"type": "string", "description": "ISO date YYYY-MM-DD"},
                         "description": {"type": "string"},
                     },
@@ -48,13 +44,11 @@ TOOL_SCHEMA = {
             "summary",
             "key_deadlines",
             "impact_level",
-
         ],
-
     },
 }
 
-_FAILED_RESULT_TEMPLATE = {
+FAILED_RESULT = {
     "document_type": None,
     "regulation_areas": [],
     "affected_firm_types": [],
@@ -64,10 +58,10 @@ _FAILED_RESULT_TEMPLATE = {
 }
 
 
-def build_prompt(item: dict) -> str:
+def build_prompt(item):
     vocab = load_vocab()
     template = load_prompt_template("classify.md")
-    return template.format(
+    prompt = template.format(
         document_types=", ".join(vocab["document_types"]),
         regulation_areas=", ".join(vocab["regulation_areas"]),
         affected_firm_types=", ".join(vocab["affected_firm_types"]),
@@ -77,9 +71,10 @@ def build_prompt(item: dict) -> str:
         published_date=item.get("published_date") or "unknown",
         raw_text=(item.get("raw_text") or "")[:MAX_RAW_TEXT_CHARS],
     )
+    return prompt
 
 
-def _call_claude(client: anthropic.Anthropic, prompt: str) -> dict:
+def _call_claude(client, prompt):
     response = client.messages.create(
         model=MODEL,
         max_tokens=1024,
@@ -93,14 +88,10 @@ def _call_claude(client: anthropic.Anthropic, prompt: str) -> dict:
     raise ValueError("Claude response did not include a classify_publication tool call")
 
 
-def classify_item(client: anthropic.Anthropic, item: dict) -> dict:
-    """classify an ingested item against the schema.
-    On success returns validated classification fields. If the model's
-    output fails schema validation, it retries. If it still fails, returns
-    a `classification_failed=True` record instead of raising so the item is
-    stored"""
+def classify_item(client, item):
+    # tries twice, if it still fails we just mark it failed and move on instead of crashing the whole run
     prompt = build_prompt(item)
-    last_error: Exception | None = None
+    last_error = None
 
     for attempt in range(2):
         try:
@@ -112,13 +103,10 @@ def classify_item(client: anthropic.Anthropic, item: dict) -> dict:
             return data
         except (ValidationError, ValueError, anthropic.APIError) as exc:
             last_error = exc
-            logger.warning(
-                "Classification attempt %d failed for %s: %s", attempt + 1, item["url"], exc
-            )
+            logger.warning("Classification attempt %d failed for %s: %s", attempt + 1, item["url"], exc)
 
     logger.error("Classification failed for %s after retry: %s", item["url"], last_error)
-    return {
-        **_FAILED_RESULT_TEMPLATE,
-        "classification_failed": True,
-        "classification_error": str(last_error),
-    }
+    failed = dict(FAILED_RESULT)
+    failed["classification_failed"] = True
+    failed["classification_error"] = str(last_error)
+    return failed
