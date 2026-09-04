@@ -1,12 +1,8 @@
-"""Stable item identity and deduplication"""
-
 import hashlib
 
 
-def make_item_id(url: str) -> str:
-    """stable identifier for a publication derived from its URL
-    Used as the archive's primary key so the same publication is never
-    processed or displayed twice
-    """
+def make_item_id(url):
+    # hash the url so we get a stable short id to use as the primary key
     normalized = url.strip().rstrip("/")
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16]
+    h = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    return h[:16]

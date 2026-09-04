@@ -1,5 +1,3 @@
-"""Static site generation from the archive (FR4)."""
-
 import shutil
 import sqlite3
 from datetime import datetime, timezone
@@ -16,15 +14,15 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 DEADLINE_WINDOW_DAYS = 90
 
 
-def _env() -> Environment:
-    return Environment(
+def _env():
+    env = Environment(
         loader=FileSystemLoader(TEMPLATES_DIR),
         autoescape=select_autoescape(["html"]),
     )
+    return env
 
 
-def build_site(conn: sqlite3.Connection, output_dir: str) -> None:
-    """Render the digest (FR4.1-3), deadlines view (FR4.4), and static assets."""
+def build_site(conn, output_dir):
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -35,20 +33,17 @@ def build_site(conn: sqlite3.Connection, output_dir: str) -> None:
 
     env = _env()
 
-    (out / "index.html").write_text(
-        env.get_template("index.html").render(
-            items=items, vocab=vocab, last_updated=last_updated, item_count=len(items)
-        ),
-        encoding="utf-8",
+    index_html = env.get_template("index.html").render(
+        items=items, vocab=vocab, last_updated=last_updated, item_count=len(items)
     )
+    (out / "index.html").write_text(index_html, encoding="utf-8")
 
-    (out / "deadlines.html").write_text(
-        env.get_template("deadlines.html").render(
-            deadlines=deadlines, last_updated=last_updated, window_days=DEADLINE_WINDOW_DAYS
-        ),
-        encoding="utf-8",
+    deadlines_html = env.get_template("deadlines.html").render(
+        deadlines=deadlines, last_updated=last_updated, window_days=DEADLINE_WINDOW_DAYS
     )
+    (out / "deadlines.html").write_text(deadlines_html, encoding="utf-8")
 
+    # just nuke and re-copy the static folder each time, it's tiny so who cares
     static_out = out / "static"
     if static_out.exists():
         shutil.rmtree(static_out)
